@@ -96,16 +96,19 @@ int main(int argc, char **argv)
 	signal(SIGTERM, sig_handler);
 
 	xcb_connection_t *con = xcb_connect(0, 0);
-	xcb_screen_t *screen = xcb_setup_roots_iterator(xcb_get_setup(con)).data;
 	uint32_t mask = XCB_CW_EVENT_MASK;
 	uint32_t values[] = { XCB_EVENT_MASK_KEY_PRESS };
-	xcb_change_window_attributes_checked(con, screen->root, mask, values);
 	uint16_t ignore_masks[] = { XCB_MOD_MASK_LOCK, XCB_MOD_MASK_2 };
-	for (int i = 0; i < (1 << (sizeof(ignore_masks) / 2)); i++) {
-		uint16_t ignore = 0;
-		for (int j = 0; j < (int)(sizeof(ignore_masks) / 2); j++)
-			ignore |= (i & (1 << j) ? ignore_masks[j] : 0);
-		xcb_grab_key(con, 1, screen->root, modifiers | ignore, keycode, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+
+	for (xcb_screen_iterator_t iter = xcb_setup_roots_iterator(xcb_get_setup(con)); iter.rem; xcb_screen_next(&iter)) {
+		xcb_screen_t *screen = iter.data;
+		xcb_change_window_attributes_checked(con, screen->root, mask, values);
+		for (int i = 0; i < (1 << (sizeof(ignore_masks) / 2)); i++) {
+			uint16_t ignore = 0;
+			for (int j = 0; j < (int)(sizeof(ignore_masks) / 2); j++)
+				ignore |= (i & (1 << j) ? ignore_masks[j] : 0);
+			xcb_grab_key(con, 1, screen->root, modifiers | ignore, keycode, XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC);
+		}
 	}
 	xcb_flush(con);
 
