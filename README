@@ -1,0 +1,15 @@
+
+xkeykill - kill started application with key combination
+Written in 2013 by <Ahmet Inan> <ainan@mathematik.uni-freiburg.de>
+To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
+You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+
+Usage: xkeykill KEYCOMBO COMMAND [ARG]...
+Start COMMAND, and kill it when KEYCOMBO is pressed.
+
+start xclock and kill it when <Alt>F4 is pressed:
+# ./xkeykill "<Alt>F4" xclock
+
+keysymdef.h is made like this:
+# grep '^#define XK_' /usr/include/X11/keysymdef.h | sed 's/^#define\ XK_\([a-zA-Z_0-9]*\)[ ]*\(0x[a-fA-F0-9]*\)[ ]*\(.*\)/{ \"\1\", \2 },\3/g' > keysymdef.h
+
