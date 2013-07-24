@@ -39,16 +39,14 @@ uint16_t extract_modifiers(char *str)
 	return mask;
 }
 
-xcb_keycode_t get_keycode(xcb_keysym_t keysym, char *str)
+xcb_keycode_t get_keycode(xcb_keysym_t keysym)
 {
 	xcb_connection_t *con = xcb_connect(0, 0);
 	xcb_key_symbols_t *symbols = xcb_key_symbols_alloc(con);
 	xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(symbols, keysym);
-	if (!keycodes) {
-		fprintf(stderr, "couldnt get keycode for %s\n", str);
-		exit(1);
-	}
-	xcb_keycode_t keycode = keycodes[0];
+	xcb_keycode_t keycode = 0;
+	if (keycodes)
+		keycode = keycodes[0];
 	free(keycodes);
 	xcb_key_symbols_free(symbols);
 	xcb_disconnect(con);
@@ -66,13 +64,18 @@ int main(int argc, char **argv)
 	char *keycombo = argv[1];
 
 	uint16_t modifiers = extract_modifiers(keycombo);
+
 	xcb_keysym_t keysym = strkeysym(keycombo);
 	if (!keysym) {
 		fprintf(stderr, "unknown key or modifier: %s\n", keycombo);
 		exit(1);
 	}
 
-	xcb_keycode_t keycode = get_keycode(keysym, keycombo);
+	xcb_keycode_t keycode = get_keycode(keysym);
+	if (!keycode) {
+		fprintf(stderr, "couldnt get keycode for %s\n", keycombo);
+		exit(1);
+	}
 
 	pid_t pid = fork();
 
