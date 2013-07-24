@@ -39,6 +39,22 @@ uint16_t extract_modifiers(char *str)
 	return mask;
 }
 
+xcb_keycode_t get_keycode(xcb_keysym_t keysym, char *str)
+{
+	xcb_connection_t *con = xcb_connect(0, 0);
+	xcb_key_symbols_t *symbols = xcb_key_symbols_alloc(con);
+	xcb_keycode_t *keycodes = xcb_key_symbols_get_keycode(symbols, keysym);
+	if (!keycodes) {
+		fprintf(stderr, "couldnt get keycode for %s\n", str);
+		exit(1);
+	}
+	xcb_keycode_t keycode = keycodes[0];
+	free(keycodes);
+	xcb_key_symbols_free(symbols);
+	xcb_disconnect(con);
+	return keycode;
+}
+
 int main(int argc, char **argv)
 {
 	if (argc < 3) {
@@ -55,6 +71,8 @@ int main(int argc, char **argv)
 		fprintf(stderr, "unknown key or modifier: %s\n", keycombo);
 		exit(1);
 	}
+
+	xcb_keycode_t keycode = get_keycode(keysym, keycombo);
 
 	pid_t pid = fork();
 
@@ -75,7 +93,6 @@ int main(int argc, char **argv)
 	signal(SIGTERM, sig_handler);
 
 	xcb_connection_t *con = xcb_connect(0, 0);
-	xcb_keycode_t keycode = xcb_key_symbols_get_keycode(xcb_key_symbols_alloc(con), keysym)[0];
 	xcb_screen_t *screen = xcb_setup_roots_iterator(xcb_get_setup(con)).data;
 	uint32_t mask = XCB_CW_EVENT_MASK;
 	uint32_t values[] = { XCB_EVENT_MASK_KEY_PRESS };
