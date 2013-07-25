@@ -10,6 +10,6 @@ Start COMMAND, and kill it when KEYCOMBO is pressed.
 start xclock and kill it when <Alt>F4 is pressed:
 # ./xkeykill "<Alt>F4" xclock
 
-keysymdef.h is made like this:
+keysymdef.h is made like this (please read /usr/include/X11/keysymdef.h for copyright):
 # grep '^#define XK_' /usr/include/X11/keysymdef.h | sed 's/^#define\ XK_\([a-zA-Z_0-9]*\)[ ]*\(0x[a-fA-F0-9]*\)[ ]*\(.*\)/{ \"\1\", \2 },\3/g' > keysymdef.h
 
