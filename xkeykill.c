@@ -118,8 +118,7 @@ int main(int argc, char **argv)
 			return 0;
 		xcb_generic_event_t *event;
 		while ((event = xcb_poll_for_event(con))) {
-			int type = event->response_type & ~0x80;
-			if (XCB_KEY_PRESS == type) {
+			if (XCB_KEY_PRESS == event->response_type) {
 				xcb_key_press_event_t *ke = (xcb_key_press_event_t *)event;
 				xcb_keycode_t kc = ke->detail;
 				uint16_t km = ke->state & (XCB_MOD_MASK_SHIFT|XCB_MOD_MASK_CONTROL|XCB_MOD_MASK_1);
