@@ -1,5 +1,5 @@
 CFLAGS = -std=c99 -W -Wall -O3 -D_POSIX_C_SOURCE
-LDFLAGS = -lxcb -lxcb-keysyms
+LDLIBS = -lxcb -lxcb-keysyms
 
 xkeykill: xkeykill.o strkeysym.o
 
